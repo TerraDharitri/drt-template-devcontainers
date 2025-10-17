@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set environment variables
         run: |
@@ -40,7 +40,7 @@ jobs:
           push: true
           platforms: linux/amd64
           file: ./resources/smart-contracts-rust/Dockerfile
-          tags: terradharitri/devcontainer-smart-contracts-rust:${{ env.VERSION }}
+          tags: TerraDharitri/devcontainer-smart-contracts-rust:${{ env.VERSION }}
 
       - name: Push to "latest"
         uses: docker/build-push-action@v6
@@ -49,4 +49,4 @@ jobs:
           push: ${{ inputs.latest }}
           platforms: linux/amd64
           file: ./resources/smart-contracts-rust/Dockerfile
-          tags: terradharitri/devcontainer-smart-contracts-rust:latest
+          tags: TerraDharitri/devcontainer-smart-contracts-rust:latest
