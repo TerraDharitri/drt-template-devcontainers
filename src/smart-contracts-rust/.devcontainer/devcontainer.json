@@ -12,7 +12,7 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// Run commands after the container is created.
-	"postCreateCommand": "python3 ~/dharitri-sdk/devcontainer-resources/post_create_command.py",
+	"postCreateCommand": "python3 ~/dharitri-py-sdk/devcontainer-resources/post_create_command.py",
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {

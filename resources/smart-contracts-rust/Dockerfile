@@ -4,9 +4,9 @@ ARG USERNAME=developer
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
-ARG VERSION_DRTPY="v9.8.1"
-ARG VERSION_RUST="1.82.0"
-ARG VERSION_SC_META="0.54.0"
+ARG VERSION_DRTPY="0.0.3"
+ARG VERSION_RUST="1.86.0"
+ARG VERSION_SC_META="1.19.0"
 ARG VERSION_WASM_OPT="0.116.1"
 
 # Create the user
@@ -33,7 +33,7 @@ RUN apt-get update && apt-get install -y \
 USER $USERNAME
 WORKDIR /home/${USERNAME}
 
-ENV DHARITRI="/home/${USERNAME}/dharitri-sdk"
+ENV DHARITRI="/home/${USERNAME}/dharitri-py-sdk"
 ENV PATH="/home/${USERNAME}/.local/bin:${PATH}"
 ENV PATH="/home/${USERNAME}/.cargo/bin:${PATH}"
 
@@ -43,11 +43,23 @@ RUN python3 -m pip install --no-cache-dir --user pipx
 # Install drtpy
 RUN pipx install dharitri-sdk-cli==${VERSION_DRTPY}
 
-# Install rust and other tools
-RUN drtpy config set "dependencies.rust.tag" ${VERSION_RUST} && \
-    drtpy config set "dependencies.sc-meta.tag" ${VERSION_SC_META}
-RUN drtpy deps install rust && rm -rf /home/${USERNAME}/.cargo/registry/* && rm -rf /home/${USERNAME}/.cargo/git/*
-RUN cargo install wasm-opt --version ${VERSION_WASM_OPT}
+# Install rust
+RUN wget -O rustup.sh https://sh.rustup.rs && \
+    chmod +x rustup.sh && \
+    CARGO_HOME=/home/${USERNAME}/.cargo RUSTUP_HOME=/home/${USERNAME}/.rustup ./rustup.sh --verbose --default-toolchain ${VERSION_RUST} --profile minimal -y && \
+    rm rustup.sh
+
+# Install sc-meta tool
+RUN CARGO_HOME=/home/${USERNAME}/.cargo RUSTUP_HOME=/home/${USERNAME}/.rustup PATH="/home/${USERNAME}/.cargo/bin:${PATH}" \
+    cargo install dharitri-sc-meta --version ${VERSION_SC_META} --locked
+
+# Install wasm32 target
+RUN CARGO_HOME=/home/${USERNAME}/.cargo RUSTUP_HOME=/home/${USERNAME}/.rustup PATH="/home/${USERNAME}/.cargo/bin:${PATH}" \
+    sc-meta install wasm32
+
+# Install wasm-opt
+RUN CARGO_HOME=/home/${USERNAME}/.cargo RUSTUP_HOME=/home/${USERNAME}/.rustup PATH="/home/${USERNAME}/.cargo/bin:${PATH}" \
+    cargo install wasm-opt --version ${VERSION_WASM_OPT} --locked
 
 # Install test wallets
 RUN drtpy deps install testwallets && rm ${DHARITRI}/*.tar.gz
